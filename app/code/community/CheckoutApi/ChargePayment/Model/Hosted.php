@@ -316,14 +316,6 @@ class CheckoutApi_ChargePayment_Model_Hosted extends Mage_Payment_Model_Method_A
         $config                     = array();
         $config['authorization']    = $secretKey;
 
-        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-        } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
-        }
-
         $config['postedParam'] = array (
             'trackId'           => NULL,
             'customerName'      => $billingAddress->getName(),
@@ -334,7 +326,7 @@ class CheckoutApi_ChargePayment_Model_Hosted extends Mage_Payment_Model_Method_A
             'billingDetails'    => $billingAddressConfig,
             'shippingDetails'   => $shippingAddressConfig,
             'products'          => $products,
-            'customerIp'        => $ip,//Mage::helper('core/http')->getRemoteAddr(),
+            'customerIp'        => Mage::helper('core/http')->getRemoteAddr(),
             'metadata'          => array(
                 'server'            => Mage::helper('core/http')->getHttpUserAgent(),
                 'quoteId'           => $this->_getQuote()->getId(),
@@ -345,10 +337,6 @@ class CheckoutApi_ChargePayment_Model_Hosted extends Mage_Payment_Model_Method_A
                 'time'              => Mage::getModel('core/date')->date('Y-m-d H:i:s')
             )
         );
-
-
-Mage::log($config, null, 'cko.log', true);
-
 
         $autoCapture = 'n';
 
@@ -740,7 +728,7 @@ Mage::log($config, null, 'cko.log', true);
             }
 
             $order->save();
-            $order->sendNewOrderEmail();
+
             $cart = Mage::getSingleton('checkout/cart');
             $cart->truncate()->save();
 
